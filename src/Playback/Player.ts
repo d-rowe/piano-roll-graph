@@ -1,4 +1,4 @@
-import {Transport, Signal, Offline, Player} from 'tone';
+import {Transport, Signal} from 'tone';
 import OscPool from './SynthPool';
 import type {OscContext} from './SynthPool';
 
