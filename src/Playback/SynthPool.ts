@@ -1,40 +1,38 @@
-import Oscillator from './Oscillator';
+import Synth from './Synth';
 
 const SIZE = 8;
 
-export type OscContext = {
-    osc: Oscillator,
+export type SynthContext = {
+    synth: Synth,
     release: () => void,
 };
 
 export default class OscPool {
-    private oscs: Record<string, Oscillator>;
-    private availableOscs: Set<string>;
+    private synthsById: Record<string, Synth>;
+    private availableSynths: Set<string>;
 
     constructor() {
-        this.oscs = {};
+        this.synthsById = {};
         for (let id = 0; id < SIZE; id++) {
-            this.oscs[id] = new Oscillator();
+            this.synthsById[id] = new Synth();
         }
-        this.availableOscs = new Set(Object.keys(this.oscs));
+        this.availableSynths = new Set(Object.keys(this.synthsById));
     }
 
-    requestOscContext(): OscContext {
-        if (this.availableOscs.size === 0) {
+    requestSynthContext(): SynthContext {
+        if (this.availableSynths.size === 0) {
             throw new Error('Cannot provide synth as none are available');
         }
 
-        const oscId: string = this.availableOscs.values().next().value;
-        console.log('oscillator', oscId, 'borrowed');
-        this.availableOscs.delete(oscId);
+        const synthId: string = this.availableSynths.values().next().value;
+        this.availableSynths.delete(synthId);
         return {
-            osc: this.oscs[oscId],
-            release: () => this.releaseOsc(oscId),
+            synth: this.synthsById[synthId],
+            release: () => this.releaseSynth(synthId),
         };
     }
 
-    private releaseOsc(oscId: string) {
-        console.log('oscillator', oscId, 'returned');
-        this.availableOscs.add(oscId);
+    private releaseSynth(synthId: string) {
+        this.availableSynths.add(synthId);
     }
 }

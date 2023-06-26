@@ -1,6 +1,6 @@
 import {Transport, Signal} from 'tone';
-import OscPool from './SynthPool';
-import type {OscContext} from './SynthPool';
+import SynthPool from './SynthPool';
+import type {SynthContext} from './SynthPool';
 
 const TICKS_PER_BEAT = 1024;
 
@@ -66,20 +66,22 @@ export const graph: IGraph = {
             from: 0,
             to: 4,
         },
-        // {
-        //     from: 1,
-        //     to: 5,
-        // },
+        {
+            from: 1,
+            to: 5,
+        },
     ],
 };
 
 export async function play() {
+    Transport.stop();
+    Transport.cancel()
     const score = constructScoreGraph(graph.notes, graph.edges);
-    const oscPool = new OscPool();
+    const synthPool = new SynthPool();
     const noteGroups = Array.from(score.values());
     noteGroups.forEach(notes => {
         notes.forEach(note => {
-            const oscContext = oscPool.requestOscContext();
+            const oscContext = synthPool.requestSynthContext();
             scheduleAttack(oscContext, note);
             traverseFromNote(oscContext, note);
 
@@ -93,7 +95,7 @@ export async function play() {
     Transport.start();
 }
 
-function traverseFromNote(oscContext: OscContext, note: Note) {
+function traverseFromNote(oscContext: SynthContext, note: Note) {
     const noteEnd = note.start + note.duration;
     if (!note.nexts?.length) {
         scheduleRelease(oscContext, noteEnd);
@@ -106,7 +108,7 @@ function traverseFromNote(oscContext: OscContext, note: Note) {
         const signal = new Signal({
             value: getFrequency(note.midi),
             units: 'frequency',
-        }).connect(oscContext.osc.frequency);
+        }).connect(oscContext.synth.frequency);
 
         Transport.schedule(() => {
             signal.exponentialRampTo(
@@ -121,17 +123,17 @@ function traverseFromNote(oscContext: OscContext, note: Note) {
     });
 }
 
-function scheduleAttack(oscContext: OscContext, note: Note) {
+function scheduleAttack(oscContext: SynthContext, note: Note) {
     Transport.schedule(() => {
         console.log('triggering attack');
-        oscContext.osc.start(getFrequency(note.midi))
+        oscContext.synth.triggerAttack(getFrequency(note.midi))
     }, getBeat(note.start));
 }
 
-function scheduleRelease(oscContext: OscContext, tick: number) {
+function scheduleRelease(oscContext: SynthContext, tick: number) {
     Transport.schedule(() => {
         console.log('triggering release');
-        oscContext.osc.stop();
+        oscContext.synth.triggerRelease();
         oscContext.release();
     }, getBeat(tick));
 }
