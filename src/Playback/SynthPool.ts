@@ -32,6 +32,13 @@ export default class OscPool {
         };
     }
 
+    reset() {
+        Object.entries(this.synthsById).forEach(([id, synth]) => {
+            this.availableSynths.add(id);
+            synth.triggerRelease();
+        });
+    }
+
     private releaseSynth(synthId: string) {
         this.availableSynths.add(synthId);
     }

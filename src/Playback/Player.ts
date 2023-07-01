@@ -5,8 +5,8 @@ import type {SynthContext} from './SynthPool';
 const TICKS_PER_BEAT = 1024;
 
 type Edge = {
-    from: number,
-    to: number,
+    source: number,
+    target: number,
     prev?: Note,
     next?: Note,
 }
@@ -59,25 +59,26 @@ export const graph: IGraph = {
     ],
     edges: [
         {
-            from: 2,
-            to: 3,
+            source: 2,
+            target: 3,
         },
         {
-            from: 0,
-            to: 4,
+            source: 0,
+            target: 4,
         },
         {
-            from: 1,
-            to: 5,
+            source: 1,
+            target: 5,
         },
     ],
 };
 
+const synthPool = new SynthPool();
 export async function play() {
     Transport.stop();
     Transport.cancel()
+    synthPool.reset();
     const score = constructScoreGraph(graph.notes, graph.edges);
-    const synthPool = new SynthPool();
     const noteGroups = Array.from(score.values());
     noteGroups.forEach(notes => {
         notes.forEach(note => {
@@ -155,8 +156,8 @@ function constructScoreGraph(notes: Note[], edges: Edge[]) {
 
     edges.forEach(edge => {
         // wire up edges
-        const noteFrom = notes[edge.from];
-        const noteTo = notes[edge.to];
+        const noteFrom = notes[edge.source];
+        const noteTo = notes[edge.target];
         edge.prev = noteFrom;
         edge.next = noteTo;
         noteFrom.nexts = noteFrom.nexts || [];
