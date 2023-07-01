@@ -1,7 +1,7 @@
 import React from 'react';
 import {play} from './Playback/Player';
 import './App.css';
-import PianoRollGraph from './PianoRollGraph';
+import PianoRollGraph from './PianoRoll/PianoRollGraph';
 
 function App() {
   return (

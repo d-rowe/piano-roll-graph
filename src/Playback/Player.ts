@@ -1,23 +1,10 @@
 import {Transport, Signal} from 'tone';
 import SynthPool from './SynthPool';
+
 import type {SynthContext} from './SynthPool';
+import type {Note, Edge} from '../constants';
 
 const TICKS_PER_BEAT = 1024;
-
-type Edge = {
-    source: number,
-    target: number,
-    prev?: Note,
-    next?: Note,
-}
-
-type Note = {
-    midi: number,
-    start: number,
-    duration: number,
-    prevs?: Edge[],
-    nexts?: Edge[],
-};
 
 type IGraph = {
     notes: Note[],
@@ -88,7 +75,6 @@ export async function play() {
 
             if (!note.nexts?.length) {
                 scheduleRelease(oscContext, note.start + note.duration);
-                return;
             }
         });
     });
