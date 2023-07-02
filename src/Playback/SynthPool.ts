@@ -7,7 +7,7 @@ export type SynthContext = {
     release: () => void,
 };
 
-export default class OscPool {
+export default class SynthPool {
     private synthsById: Record<string, Synth>;
     private availableSynths: Set<string>;
 

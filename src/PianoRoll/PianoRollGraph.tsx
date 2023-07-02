@@ -1,4 +1,5 @@
 import {
+    memo,
     useEffect,
     useCallback,
 } from 'react';
@@ -10,40 +11,58 @@ import ReactFlow, {
     useNodesState,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import {graph} from '../constants';
 import NoteNode from './NoteNode';
 
-import type {Node, Edge, Connection} from 'reactflow';
+import type {Node, Edge, Connection, NodeChange, EdgeChange} from 'reactflow';
 import type {Note, Edge as NoteEdge} from '../constants';
 
 
 const gridSize = 36;
-const connectionLineStyle = {strokeWidth: gridSize};
+const edgeWidth = 8
+const connectionLineStyle = {strokeWidth: edgeWidth};
 const snapGrid: [number, number] = [gridSize, gridSize];
 const nodeTypes = {
     note: NoteNode,
 };
 
-const CustomNodeFlow = () => {
+type Props = {
+    notes: Note[],
+    edges: NoteEdge[],
+};
+
+const CustomNodeFlow = memo((props: Props) => {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     useEffect(() => {
-        setNodes(graph.notes.map(createNode));
-        setEdges(graph.edges.map(createEdge));
-    }, [setNodes, setEdges]);
+        setNodes(props.notes.map(createNode));
+        setEdges(props.edges.map(createEdge));
+    }, [setNodes, setEdges, props]);
 
-    const onConnect = useCallback(
-        (connection: Connection) =>
-            setEdges((eds) => addEdge({...connection, style: {strokeWidth: gridSize}}, eds)),
-        [setEdges]
-    );
+    const onConnect = useCallback((connection: Connection) => {
+        console.log(connection);
+        setEdges((eds) => addEdge({
+            ...connection,
+            style: {strokeWidth: edgeWidth}
+        }, eds));
+    }, [setEdges]);
+
+    const onNoteChange = useCallback((changes: NodeChange[]) => {
+        console.log(changes);
+        onNodesChange(changes);
+    }, [onNodesChange]);
+
+    const onNoteEdgeChange = useCallback((changes: EdgeChange[]) => {
+        console.log(changes);
+        onEdgesChange(changes);
+    }, [onEdgesChange]);
+
     return (
         <ReactFlow
             nodes={nodes}
             edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
+            onNodesChange={onNoteChange}
+            onEdgesChange={onNoteEdgeChange}
             onConnect={onConnect}
             connectionLineStyle={connectionLineStyle}
             onClickCapture={console.log}
@@ -52,12 +71,12 @@ const CustomNodeFlow = () => {
             snapToGrid={true}
             snapGrid={snapGrid}
             fitView
-            attributionPosition="bottom-right"
+            attributionPosition='bottom-right'
         >
             <Controls />
         </ReactFlow>
     );
-};
+});
 
 function createNode(note: Note, id: number): Node {
     return {
@@ -87,7 +106,7 @@ function createEdge(edge: NoteEdge, id: number): Edge {
         target,
         sourceHandle: `${source}-R`,
         targetHandle: `${target}-L`,
-        style: {strokeWidth: gridSize},
+        style: {strokeWidth: edgeWidth},
     };
 }
 
