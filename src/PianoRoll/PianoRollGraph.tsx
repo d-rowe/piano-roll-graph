@@ -29,16 +29,14 @@ const CustomNodeFlow = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
     useEffect(() => {
-        const edges = graph.edges.map(createEdge);
-        console.log(edges);
         setNodes(graph.notes.map(createNode));
-        setEdges(edges);
-    }, []);
+        setEdges(graph.edges.map(createEdge));
+    }, [setNodes, setEdges]);
 
     const onConnect = useCallback(
         (connection: Connection) =>
             setEdges((eds) => addEdge({...connection, style: {strokeWidth: gridSize}}, eds)),
-        []
+        [setEdges]
     );
     return (
         <ReactFlow
