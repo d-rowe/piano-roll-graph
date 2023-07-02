@@ -17,8 +17,8 @@ import type {Node, Edge, Connection} from 'reactflow';
 import type {Note, Edge as NoteEdge} from '../constants';
 
 
-const connectionLineStyle = {stroke: '#000'};
 const gridSize = 36;
+const connectionLineStyle = {strokeWidth: gridSize};
 const snapGrid: [number, number] = [gridSize, gridSize];
 const nodeTypes = {
     note: NoteNode,
@@ -37,7 +37,7 @@ const CustomNodeFlow = () => {
 
     const onConnect = useCallback(
         (connection: Connection) =>
-            setEdges((eds) => addEdge({...connection, style: {stroke: '#000'}}, eds)),
+            setEdges((eds) => addEdge({...connection, style: {strokeWidth: gridSize}}, eds)),
         []
     );
     return (
@@ -89,7 +89,7 @@ function createEdge(edge: NoteEdge, id: number): Edge {
         target,
         sourceHandle: `${source}-R`,
         targetHandle: `${target}-L`,
-        style: {stroke: '#000'},
+        style: {strokeWidth: gridSize},
     };
 }
 
