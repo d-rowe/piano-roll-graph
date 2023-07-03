@@ -97,7 +97,7 @@ function createNode(note: Note, id: number): Node {
     };
 }
 
-function createEdge(edge: NoteEdge, id: number): Edge {
+function createEdge(edge: NoteEdge): Edge {
     const source = edge.source?.toString() || '';
     const target = edge.target?.toString() || '';
     return {

@@ -90,36 +90,34 @@ function traverseFromNote(oscContext: SynthContext, note: Note) {
     }
 
     note.nexts?.forEach((edge, i) => {
-        // if i > 1 we need to request more synth contexts
+        // TODO: if i > 1 we need to request more synth contexts
         const noteNext = edge.next!;
-        const signal = new Signal({
+        const frequencySignal = new Signal({
             value: getFrequency(note.midi),
             units: 'frequency',
         }).connect(oscContext.synth.frequency);
 
         Transport.schedule(() => {
-            signal.exponentialRampTo(
+            frequencySignal.exponentialRampTo(
                 getFrequency(noteNext.midi),
                 getBeat(noteNext.start - noteEnd)
             );
         }, getBeat(noteEnd));
 
         Transport.schedule(() => {
-            signal.dispose();
+            frequencySignal.dispose();
         }, getBeat(noteNext.start + noteNext.duration));
     });
 }
 
 function scheduleAttack(oscContext: SynthContext, note: Note) {
     Transport.schedule(() => {
-        console.log('triggering attack');
         oscContext.synth.triggerAttack(getFrequency(note.midi))
     }, getBeat(note.start));
 }
 
 function scheduleRelease(oscContext: SynthContext, tick: number) {
     Transport.schedule(() => {
-        console.log('triggering release');
         oscContext.synth.triggerRelease();
         oscContext.release();
     }, getBeat(tick));
