@@ -1,3 +1,4 @@
+import 'reactflow/dist/style.css';
 import {
     memo,
     useEffect,
@@ -10,11 +11,12 @@ import ReactFlow, {
     useEdgesState,
     useNodesState,
 } from 'reactflow';
-import 'reactflow/dist/style.css';
 import NoteNode from './NoteNode';
+import {addNoteEdge} from '../features/scoreSlice';
 
 import type {Node, Edge, Connection, NodeChange, EdgeChange} from 'reactflow';
 import type {Note, Edge as NoteEdge} from '../constants';
+import {useDispatch} from 'react-redux';
 
 
 const gridSize = 36;
@@ -31,6 +33,7 @@ type Props = {
 };
 
 const CustomNodeFlow = memo((props: Props) => {
+    const dispatch = useDispatch();
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -40,12 +43,18 @@ const CustomNodeFlow = memo((props: Props) => {
     }, [setNodes, setEdges, props]);
 
     const onConnect = useCallback((connection: Connection) => {
-        console.log(connection);
         setEdges((eds) => addEdge({
             ...connection,
             style: {strokeWidth: edgeWidth}
         }, eds));
-    }, [setEdges]);
+
+        dispatch(addNoteEdge({
+            edge: {
+                source: Number(connection.source),
+                target: Number(connection.target),
+            }
+        }));
+    }, [setEdges, dispatch]);
 
     const onNoteChange = useCallback((changes: NodeChange[]) => {
         console.log(changes);

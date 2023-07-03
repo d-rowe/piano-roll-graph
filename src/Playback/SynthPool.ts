@@ -32,10 +32,12 @@ export default class SynthPool {
         };
     }
 
-    reset() {
+    dispose() {
         Object.entries(this.synthsById).forEach(([id, synth]) => {
             this.availableSynths.add(id);
             synth.triggerRelease();
+            // allow for release tail to taper off
+            setTimeout(() => synth.dispose(), 500);
         });
     }
 

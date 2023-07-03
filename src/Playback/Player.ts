@@ -3,6 +3,7 @@ import SynthPool from './SynthPool';
 
 import type {SynthContext} from './SynthPool';
 import type {Note, Edge} from '../constants';
+import {store} from '../app/store';
 
 const TICKS_PER_BEAT = 1024;
 
@@ -10,6 +11,8 @@ type IGraph = {
     notes: Note[],
     edges: Edge[],
 };
+
+type ScoreGraph = Map<number, Note[]>;
 
 export const graph: IGraph = {
     notes: [
@@ -60,12 +63,14 @@ export const graph: IGraph = {
     ],
 };
 
-const synthPool = new SynthPool();
+let prevSynthPool: SynthPool | null = null;
 export async function play() {
+    const {notes, edges} = store.getState().score;
     Transport.stop();
     Transport.cancel()
-    synthPool.reset();
-    const score = constructScoreGraph(graph.notes, graph.edges);
+    prevSynthPool?.dispose();
+    const synthPool = new SynthPool();
+    const score = constructScoreGraph(notes, edges);
     const noteGroups = Array.from(score.values());
     noteGroups.forEach(notes => {
         notes.forEach(note => {
@@ -79,6 +84,7 @@ export async function play() {
         });
     });
 
+    prevSynthPool = synthPool;
     Transport.start();
 }
 
@@ -127,21 +133,23 @@ function getBeat(tick: number): number {
     return tick / TICKS_PER_BEAT;
 }
 
-function constructScoreGraph(notes: Note[], edges: Edge[]) {
-    const scoreGraph = new Map<number, Note[]>();
+function constructScoreGraph(notes: Note[], edges: Edge[]): ScoreGraph {
+    const currentNotes = notes.map(n => ({...n}));
+    const currentEdges = edges.map(e => ({...e}));
+    const scoreGraph: ScoreGraph = new Map();
 
     // add notes by start tick
-    notes.forEach(note => {
+    currentNotes.forEach(note => {
         if (!scoreGraph.get(note.start)) {
             scoreGraph.set(note.start, []);
         }
         scoreGraph.get(note.start)!.push(note);
     });
 
-    edges.forEach(edge => {
+    currentEdges.forEach(edge => {
         // wire up edges
-        const noteFrom = notes[edge.source];
-        const noteTo = notes[edge.target];
+        const noteFrom = currentNotes[edge.source];
+        const noteTo = currentNotes[edge.target];
         edge.prev = noteFrom;
         edge.next = noteTo;
         noteFrom.nexts = noteFrom.nexts || [];
@@ -164,7 +172,7 @@ function constructScoreGraph(notes: Note[], edges: Edge[]) {
     });
 
     // order entries
-    const orderedScoreGraph = new Map<number, Note[]>();
+    const orderedScoreGraph: ScoreGraph = new Map();
     const orderedStarts = Array.from(scoreGraph.keys()).sort();
     orderedStarts.forEach(start => {
         orderedScoreGraph.set(start, scoreGraph.get(start)!);

@@ -2,18 +2,30 @@ import React from 'react';
 import {play} from './Playback/Player';
 import './App.css';
 import PianoRollGraph from './PianoRoll/PianoRollGraph';
-import {graph} from './constants';
+import {Graph, graph} from './constants';
+import {RootState} from './app/store';
+import {selectScore} from './features/scoreSlice';
+import {connect} from 'react-redux';
 
-function App() {
+type Props = {
+  score: Graph,
+}
+function App(props: Props) {
   return (
     <div className="App">
       <PianoRollGraph
-        notes={graph.notes}
-        edges={graph.edges}
+        notes={props.score.notes}
+        edges={props.score.edges}
       />
       <button onClick={play} style={{position: 'absolute', top: 0}}>Play</button>
     </div>
   );
 }
 
-export default App;
+function mapStateToProps(state: RootState) {
+  return {
+    score: selectScore(state),
+  };
+}
+
+export default connect(mapStateToProps)(App);
