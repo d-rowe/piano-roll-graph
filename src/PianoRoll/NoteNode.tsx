@@ -25,13 +25,21 @@ export default memo((props: NodeProps) => {
                 borderRadius: '2px',
                 backgroundColor: '#D0D1FF',
                 height: '100%',
-            }}/>
-            <Handle
-                id={`${props.id}-R`}
-                type="source"
-                position={Position.Right}
-            />
-            <NodeResizeControl position='right' style={resizeControlStyle} />
+                width: 'calc(100% + 16px)',
+            }} />
+            <div style={{
+                position: 'absolute',
+                right: -17,
+                top: 0,
+                height: '100%'
+            }}>
+                <NodeResizeControl position='right' style={resizeControlStyle} />
+                <Handle
+                    id={`${props.id}-R`}
+                    type="source"
+                    position={Position.Right}
+                />
+            </div>
         </>
     );
 });

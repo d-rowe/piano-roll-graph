@@ -30,10 +30,11 @@ const nodeTypes = {
     note: NoteNode,
 };
 const defaultViewport = {
-    x: 0,
+    x: 16,
     y: -2000,
     zoom: 1,
 };
+const translateExtent: [[number, number],[number, number]] = [[-16, 0], [9999, 9999]];
 
 type Props = {
     notes: Record<string, Note>,
@@ -84,7 +85,7 @@ const PianoRollGraph = (props: Props) => {
             onDoubleClick={onClick}
             nodeTypes={nodeTypes}
             style={getBackgroundStyle(x, y, zoom, gridSize)}
-            translateExtent={[[0, 0], [Infinity, 9999]]}
+            translateExtent={translateExtent}
             snapToGrid={true}
             snapGrid={snapGrid}
             attributionPosition='bottom-right'
