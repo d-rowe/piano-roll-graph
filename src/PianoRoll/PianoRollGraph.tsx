@@ -14,10 +14,12 @@ import ReactFlow, {
     useViewport,
 } from 'reactflow';
 import NoteNode from './NoteNode';
-import {addNote, addNoteEdge, deleteNote, deleteNoteEdge, updateNote} from '../features/scoreActions';
+import * as ScoreActions from '../features/scoreActions';
 
 import type {Node, Edge, Connection, NodeChange, EdgeChange} from 'reactflow';
 import type {Note, Edge as NoteEdge} from '../constants';
+import Synth from '../Playback/Synth';
+import {getFrequency} from '../Playback/SynthUtils';
 
 
 const gridSize = 36;
@@ -38,6 +40,8 @@ type Props = {
     edges: Record<string, NoteEdge>,
 };
 
+const synth = new Synth();
+
 const PianoRollGraph = (props: Props) => {
     const {x, y, zoom} = useViewport();
     const [nodes, setNodes] = useNodesState([]);
@@ -49,7 +53,7 @@ const PianoRollGraph = (props: Props) => {
     }, [setNodes, setEdges, props]);
 
     const onConnect = useCallback((connection: Connection) => {
-        addNoteEdge({
+        ScoreActions.addNoteEdge({
             sourceId: connection.source || '',
             targetId: connection.target || '',
         });
@@ -59,9 +63,10 @@ const PianoRollGraph = (props: Props) => {
         const {clientX, clientY} = event;
         const left = clientX - x;
         const top = clientY - y;
-        const start = Math.floor(left / zoom * 8 / 128) * 128;
-        addNote({
-            midi: Math.floor(128 - (top / zoom / gridSize)),
+        const start = Math.max(Math.floor(left / zoom * 8 / 128) * 128, 0);
+        const midi = Math.floor(128 - (top / zoom / gridSize));
+        ScoreActions.addNote({
+            midi,
             start,
             duration: 1024,
         });
@@ -81,7 +86,6 @@ const PianoRollGraph = (props: Props) => {
             nodeTypes={nodeTypes}
             snapToGrid={true}
             snapGrid={snapGrid}
-            // fitView
             attributionPosition='bottom-right'
         >
             <Controls />
@@ -125,14 +129,14 @@ function applyNodeChanges(nodeChanges: NodeChange[]) {
     nodeChanges.forEach(change => {
         switch (change.type) {
             case 'remove':
-                deleteNote(change.id);
+                ScoreActions.deleteNote(change.id);
                 break;
             case 'dimensions':
                 if (!change.dimensions) {
                     return;
                 }
                 const {width} = change.dimensions;
-                updateNote({
+                ScoreActions.updateNote({
                     id: change.id,
                     duration: Math.max(width * 8, 128),
                 })
@@ -143,7 +147,7 @@ function applyNodeChanges(nodeChanges: NodeChange[]) {
                 }
                 const {x, y} = change.position;
                 const midi = Math.max(Math.floor(127 - (y / gridSize)), 0);
-                updateNote({
+                ScoreActions.updateNote({
                     id: change.id,
                     midi,
                     start: Math.max(x * 8, 0),
@@ -164,13 +168,13 @@ function applyEdgeChanges(edgeChanges: EdgeChange[]) {
             return
         }
 
-        deleteNoteEdge(change.id);
+        ScoreActions.deleteNoteEdge(change.id);
     });
 }
 
 const WrappedPianoRoll = memo((props: Props) => (
     <ReactFlowProvider>
-        <PianoRollGraph {...props} />
+        <PianoRollGraph notes={props.notes} edges={props.edges} />
     </ReactFlowProvider>
 ));
 

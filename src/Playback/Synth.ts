@@ -18,11 +18,16 @@ export default class Synth {
     }
 
     triggerAttack(frequency: number) {
+        this.frequency.value = frequency;
         this.synth.triggerAttack(frequency);
     }
 
     triggerRelease() {
         this.synth.triggerRelease();
+    }
+
+    triggerAttackRelease(frequency: number, duration: string) {
+        this.synth.triggerAttackRelease(frequency, duration);
     }
 
     dispose() {
