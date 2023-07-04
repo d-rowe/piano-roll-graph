@@ -3,12 +3,12 @@ import {Handle, Position, NodeResizeControl} from 'reactflow';
 
 import type {NodeProps} from 'reactflow';
 
+const TRANSPARENT = 'rgba(255, 255, 255, 0)';
+
 const resizeControlStyle = {
     height: '100%',
-    border: '1px solid black',
-    backgroundColor: 'white',
-    marginTop: '1px',
-    width: 0,
+    backgroundColor: TRANSPARENT,
+    borderColor: TRANSPARENT,
 };
 
 export default memo((props: NodeProps) => {
@@ -19,12 +19,16 @@ export default memo((props: NodeProps) => {
                 id={`${props.id}-L`}
                 type="target"
                 position={Position.Left}
+                style={{
+                    width: '6px',
+                    height: '6px',
+                }}
             />
             <div style={{
                 border: '1px solid black',
-                borderRadius: '2px',
                 backgroundColor: '#D0D1FF',
                 height: '100%',
+                boxSizing: 'border-box',
                 width: 'calc(100% + 16px)',
             }} />
             <div style={{
@@ -38,6 +42,11 @@ export default memo((props: NodeProps) => {
                     id={`${props.id}-R`}
                     type="source"
                     position={Position.Right}
+                    style={{
+                        width: '6px',
+                        height: '6px',
+                        right: '-3px',
+                    }}
                 />
             </div>
         </>

@@ -48,9 +48,7 @@ function traverseFromNote(oscContext: SynthContext, note: Note) {
             );
         }, getBeat(noteEnd));
 
-        Transport.schedule(() => {
-            frequency.dispose();
-        }, getBeat(noteNext.start + noteNext.duration));
+        traverseFromNote(oscContext, noteNext);
     });
 }
 

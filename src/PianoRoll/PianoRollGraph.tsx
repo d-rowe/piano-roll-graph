@@ -83,6 +83,8 @@ const PianoRollGraph = (props: Props) => {
             zoomOnDoubleClick={false}
             defaultViewport={defaultViewport}
             onDoubleClick={onClick}
+            onNodeDoubleClick={onNodeDoubleClick}
+            onEdgeDoubleClick={onEdgeDoubleClick}
             nodeTypes={nodeTypes}
             style={getBackgroundStyle(x, y, zoom, gridSize)}
             translateExtent={translateExtent}
@@ -140,7 +142,7 @@ function applyNodeChanges(nodeChanges: NodeChange[]) {
                 const {width} = change.dimensions;
                 ScoreActions.updateNote({
                     id: change.id,
-                    duration: Math.max(width * horizontalSize, 128),
+                    duration: Math.max(width * 8, 128),
                 })
                 break;
             case 'position':
@@ -172,6 +174,16 @@ function applyEdgeChanges(edgeChanges: EdgeChange[]) {
 
         ScoreActions.deleteNoteEdge(change.id);
     });
+}
+
+function onNodeDoubleClick(event: MouseEvent, node: Node) {
+    event.stopPropagation();
+    ScoreActions.deleteNote(node.id);
+}
+
+function onEdgeDoubleClick(event: MouseEvent, edge: Edge) {
+    event.stopPropagation();
+    ScoreActions.deleteNoteEdge(edge.id);
 }
 
 const WrappedPianoRoll = memo((props: Props) => (
