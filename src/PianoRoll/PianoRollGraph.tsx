@@ -14,15 +14,15 @@ import ReactFlow, {
     useViewport,
 } from 'reactflow';
 import NoteNode from './NoteNode';
+import getBackgroundStyle from './getBackgroundStyle';
 import * as ScoreActions from '../features/scoreActions';
 
 import type {Node, Edge, Connection, NodeChange, EdgeChange} from 'reactflow';
 import type {Note, Edge as NoteEdge} from '../constants';
-import Synth from '../Playback/Synth';
-import {getFrequency} from '../Playback/SynthUtils';
 
 
 const gridSize = 36;
+const horizontalSize = 8;
 const edgeWidth = 8
 const connectionLineStyle = {strokeWidth: edgeWidth};
 const snapGrid: [number, number] = [gridSize, gridSize];
@@ -30,7 +30,7 @@ const nodeTypes = {
     note: NoteNode,
 };
 const defaultViewport = {
-    x: 128,
+    x: 0,
     y: -2000,
     zoom: 1,
 };
@@ -40,7 +40,6 @@ type Props = {
     edges: Record<string, NoteEdge>,
 };
 
-const synth = new Synth();
 
 const PianoRollGraph = (props: Props) => {
     const {x, y, zoom} = useViewport();
@@ -63,7 +62,7 @@ const PianoRollGraph = (props: Props) => {
         const {clientX, clientY} = event;
         const left = clientX - x;
         const top = clientY - y;
-        const start = Math.max(Math.floor(left / zoom * 8 / 128) * 128, 0);
+        const start = Math.max(Math.floor(left / zoom * horizontalSize / 128) * 128, 0);
         const midi = Math.floor(128 - (top / zoom / gridSize));
         ScoreActions.addNote({
             midi,
@@ -84,6 +83,8 @@ const PianoRollGraph = (props: Props) => {
             defaultViewport={defaultViewport}
             onDoubleClick={onClick}
             nodeTypes={nodeTypes}
+            style={getBackgroundStyle(x, y, zoom, gridSize)}
+            translateExtent={[[0, 0], [Infinity, 9999]]}
             snapToGrid={true}
             snapGrid={snapGrid}
             attributionPosition='bottom-right'
@@ -99,11 +100,11 @@ function createNode(note: Note): Node {
         type: 'note',
         data: {label: ''},
         position: {
-            x: note.start / 8,
+            x: note.start / horizontalSize,
             y: (127 - note.midi) * gridSize,
         },
         style: {
-            width: note.duration / 8,
+            width: note.duration / horizontalSize,
             height: gridSize,
         },
         sourcePosition: Position.Left,
@@ -138,7 +139,7 @@ function applyNodeChanges(nodeChanges: NodeChange[]) {
                 const {width} = change.dimensions;
                 ScoreActions.updateNote({
                     id: change.id,
-                    duration: Math.max(width * 8, 128),
+                    duration: Math.max(width * horizontalSize, 128),
                 })
                 break;
             case 'position':
@@ -150,7 +151,7 @@ function applyNodeChanges(nodeChanges: NodeChange[]) {
                 ScoreActions.updateNote({
                     id: change.id,
                     midi,
-                    start: Math.max(x * 8, 0),
+                    start: Math.max(x * horizontalSize, 0),
                 })
                 break;
             case 'select':

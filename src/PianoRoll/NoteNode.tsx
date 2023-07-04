@@ -8,13 +8,13 @@ const resizeControlStyle = {
     border: '1px solid black',
     backgroundColor: 'white',
     marginTop: '1px',
+    width: 0,
 };
 
 export default memo((props: NodeProps) => {
     return (
         <>
             <NodeResizeControl position='left' style={resizeControlStyle} />
-            <NodeResizeControl position='right' style={resizeControlStyle} />
             <Handle
                 id={`${props.id}-L`}
                 type="target"
@@ -23,6 +23,7 @@ export default memo((props: NodeProps) => {
             <div style={{
                 border: '1px solid black',
                 borderRadius: '2px',
+                backgroundColor: '#D0D1FF',
                 height: '100%',
             }}/>
             <Handle
@@ -30,6 +31,7 @@ export default memo((props: NodeProps) => {
                 type="source"
                 position={Position.Right}
             />
+            <NodeResizeControl position='right' style={resizeControlStyle} />
         </>
     );
 });
