@@ -2,7 +2,7 @@ import React from 'react';
 import {play} from './Playback/Player';
 import './App.css';
 import PianoRollGraph from './PianoRoll/PianoRollGraph';
-import {Graph, graph} from './constants';
+import {Graph} from './constants';
 import {RootState} from './app/store';
 import {selectScore} from './features/scoreSlice';
 import {connect} from 'react-redux';
