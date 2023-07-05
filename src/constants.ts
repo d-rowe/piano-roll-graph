@@ -16,6 +16,7 @@ export type Note = {
 };
 
 export type Graph = {
+    bpm: number,
     notes: Record<string, Note>,
     edges: Record<string, Edge>,
 };

@@ -1,7 +1,15 @@
+import {nanoid} from 'nanoid';
 import {store} from '../app/store';
+import {
+    addNoteAC,
+    addNoteEdgeAC,
+    deleteNoteAC,
+    deleteNoteEdgeAC,
+    updateNoteAC,
+} from './scoreSlice';
+
 import type {Note, Edge} from '../constants';
-import {v4 as uuidv4} from 'uuid';
-import {addNoteAC, addNoteEdgeAC, deleteNoteAC, deleteNoteEdgeAC, updateNoteAC} from './scoreSlice';
+
 
 type NoteWithoutId = Omit<Note, 'id'>;
 type EdgeWithoutId = Omit<Edge, 'id'>;
@@ -9,7 +17,7 @@ type EdgeWithoutId = Omit<Edge, 'id'>;
 export function addNote(props: NoteWithoutId) {
     store.dispatch(addNoteAC({
         ...props,
-        id: uuidv4(),
+        id: generateId(),
     }));
 }
 
@@ -29,10 +37,14 @@ export function deleteNote(noteId: string) {
 export function addNoteEdge(props: EdgeWithoutId) {
     store.dispatch(addNoteEdgeAC({
         ...props,
-        id: uuidv4(),
+        id: generateId(),
     }));
 }
 
 export function deleteNoteEdge(edgeId: string) {
     store.dispatch(deleteNoteEdgeAC({edgeId}));
+}
+
+function generateId(): string {
+    return nanoid(10);
 }

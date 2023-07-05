@@ -1,4 +1,3 @@
-import React from 'react';
 import {play} from './Playback/Player';
 import './App.css';
 import PianoRollGraph from './PianoRoll/PianoRollGraph';
@@ -6,20 +5,27 @@ import {Graph} from './constants';
 import {RootState} from './app/store';
 import {selectScore} from './features/scoreSlice';
 import {connect} from 'react-redux';
+import {getScoreUrl} from './utils/fileUtils';
+import Toolbar from './Toolbar/Toolbar';
 
 type Props = {
   score: Graph,
-}
-function App(props: Props) {
+};
+
+function App({score}: Props) {
   return (
     <div className="App">
       <PianoRollGraph
-        notes={props.score.notes}
-        edges={props.score.edges}
+        score={score}
       />
-      <button onClick={play} style={{position: 'absolute', top: 0}}>Play</button>
+      <Toolbar score={score} />
     </div>
   );
+
+
+  function save() {
+    navigator.clipboard.writeText(getScoreUrl(score));
+  }
 }
 
 function mapStateToProps(state: RootState) {

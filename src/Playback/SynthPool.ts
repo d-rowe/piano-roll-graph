@@ -1,6 +1,6 @@
 import Synth from './Synth';
 
-const SIZE = 8;
+const SIZE = 32;
 
 export type SynthContext = {
     synth: Synth,

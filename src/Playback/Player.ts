@@ -2,15 +2,18 @@ import {Transport} from 'tone';
 import SynthPool from './SynthPool';
 import {store} from '../app/store';
 import ScoreGraph from './ScoreGraph';
+import {getBeat, getFrequency} from '../utils/scoreUtils';
+import {DEFAULT_VOLUME} from './Synth';
 
 import type {SynthContext} from './SynthPool';
-import type {Note} from '../constants';
-import {getBeat, getFrequency} from './SynthUtils';
+import type {Edge, Note} from '../constants';
 
 
 let prevSynthPool: SynthPool | null = null;
 export async function play() {
     const score = store.getState().score;
+    Transport.bpm.value = score.bpm;
+    const slideTargetNotes = new Set<Note>();
     Transport.stop();
     Transport.cancel()
     prevSynthPool?.dispose();
@@ -26,34 +29,65 @@ export async function play() {
 
     prevSynthPool = synthPool;
     Transport.start();
-}
 
-function traverseFromNote(oscContext: SynthContext, note: Note) {
-    const noteEnd = note.start + note.duration;
-    if (!note.nexts?.length) {
-        scheduleRelease(oscContext, noteEnd);
-        return;
+    function traverseFromNote(oscContext: SynthContext, note: Note) {
+        const noteEnd = note.start + note.duration;
+        if (!note.nexts?.length) {
+            scheduleRelease(oscContext, noteEnd);
+            return;
+        }
+
+        note.nexts.forEach((edge, i) => {
+            traverseEdge(oscContext, note, edge, i);
+        });
     }
 
-    note.nexts.forEach(edge => {
-        // TODO: we need to request more synth contexts
-        //      if theres more than one edge
+    function traverseEdge(
+        oscContext: SynthContext,
+        note: Note,
+        edge: Edge,
+        i: number,
+    ) {
+        const noteEnd = note.start + note.duration;
+        const isSynthSplit = i > 0;
+        const noteOscContext = isSynthSplit
+            ? synthPool.requestSynthContext()
+            : oscContext;
         const noteNext = edge.next!;
-        const {frequency} = oscContext.synth;
 
         Transport.schedule(() => {
-            frequency.exponentialRampTo(
+            noteOscContext.synth.frequency.exponentialRampTo(
                 getFrequency(noteNext.midi),
                 getBeat(noteNext.start - noteEnd)
             );
         }, getBeat(noteEnd));
 
-        traverseFromNote(oscContext, noteNext);
-    });
+        if (slideTargetNotes.has(noteNext)) {
+            scheduleRelease(noteOscContext, getBeat(noteNext.start));
+        }
+        slideTargetNotes.add(noteNext);
+
+        if (isSynthSplit) {
+            noteOscContext.synth.setImmediateAttack();
+            scheduleAttack(noteOscContext, note, true);
+
+            Transport.schedule(() => {
+                noteOscContext.synth.volume.linearRampTo(
+                    DEFAULT_VOLUME,
+                    getBeat(noteNext.start - noteEnd),
+                )
+            }, getBeat(note.start));
+        }
+
+        traverseFromNote(noteOscContext, noteNext);
+    }
 }
 
-function scheduleAttack(oscContext: SynthContext, note: Note) {
+function scheduleAttack(oscContext: SynthContext, note: Note, ease = false) {
     Transport.schedule(() => {
+        if (ease) {
+            oscContext.synth.setVolume(-32);
+        }
         oscContext.synth.triggerAttack(getFrequency(note.midi))
     }, getBeat(note.start));
 }

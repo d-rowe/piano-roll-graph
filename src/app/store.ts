@@ -1,5 +1,6 @@
 import {configureStore} from '@reduxjs/toolkit';
 import {scoreReducer} from '../features/scoreSlice';
+import {initializeSubscriptions} from './subscriptions';
 
 
 export const store = configureStore({
@@ -11,3 +12,5 @@ export const store = configureStore({
 
 export type AppDispatch = typeof store.dispatch
 export type RootState = ReturnType<typeof store.getState>
+
+initializeSubscriptions();

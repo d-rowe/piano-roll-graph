@@ -16,41 +16,44 @@ import ReactFlow, {
 import NoteNode from './NoteNode';
 import getBackgroundStyle from './getBackgroundStyle';
 import * as ScoreActions from '../features/scoreActions';
+import {NODE_COLOR} from './colors';
 
 import type {Node, Edge, Connection, NodeChange, EdgeChange} from 'reactflow';
-import type {Note, Edge as NoteEdge} from '../constants';
+import type {Graph, Note, Edge as NoteEdge} from '../constants';
 
 
 const gridSize = 36;
 const horizontalSize = 8;
 const edgeWidth = 8
-const connectionLineStyle = {strokeWidth: edgeWidth};
+const edgeStyle = {
+    strokeWidth: edgeWidth,
+    stroke: NODE_COLOR
+};
 const snapGrid: [number, number] = [gridSize, gridSize];
 const nodeTypes = {
     note: NoteNode,
 };
 const defaultViewport = {
     x: 16,
-    y: -2000,
-    zoom: 1,
+    y: -1100,
+    zoom: 0.6,
 };
 const translateExtent: [[number, number],[number, number]] = [[-16, 0], [9999, 9999]];
 
 type Props = {
-    notes: Record<string, Note>,
-    edges: Record<string, NoteEdge>,
+    score: Graph,
 };
 
 
-const PianoRollGraph = (props: Props) => {
+const PianoRollGraph = ({score}: Props) => {
     const {x, y, zoom} = useViewport();
     const [nodes, setNodes] = useNodesState([]);
     const [edges, setEdges] = useEdgesState([]);
 
     useEffect(() => {
-        setNodes(Object.values(props.notes).map(createNode));
-        setEdges(Object.values(props.edges).map(createEdge));
-    }, [setNodes, setEdges, props]);
+        setNodes(Object.values(score.notes).map(createNode));
+        setEdges(Object.values(score.edges).map(createEdge));
+    }, [setNodes, setEdges, score]);
 
     const onConnect = useCallback((connection: Connection) => {
         ScoreActions.addNoteEdge({
@@ -72,25 +75,38 @@ const PianoRollGraph = (props: Props) => {
         });
     }, [x, y, zoom]);
 
+    const isValidConnection = useCallback((connection: Connection) => {
+        const {source, target} = connection;
+        if (!source || !target) {
+            return false;
+        }
+        const noteSource = score.notes[source];
+        const noteTarget = score.notes[target];
+        return noteSource.start + noteSource.duration < noteTarget.start;
+    }, [score.notes]);
+
     return (
         <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={applyNodeChanges}
-            onEdgesChange={applyEdgeChanges}
-            onConnect={onConnect}
-            connectionLineStyle={connectionLineStyle}
-            zoomOnDoubleClick={false}
+            attributionPosition='bottom-right'
+            connectionLineStyle={edgeStyle}
             defaultViewport={defaultViewport}
-            onDoubleClick={onClick}
-            onNodeDoubleClick={onNodeDoubleClick}
-            onEdgeDoubleClick={onEdgeDoubleClick}
+            edges={edges}
+            isValidConnection={isValidConnection}
+            maxZoom={4}
+            minZoom={0.25}
+            nodes={nodes}
             nodeTypes={nodeTypes}
+            onConnect={onConnect}
+            onDoubleClick={onClick}
+            onEdgeDoubleClick={onEdgeDoubleClick}
+            onEdgesChange={applyEdgeChanges}
+            onNodeDoubleClick={onNodeDoubleClick}
+            onNodesChange={applyNodeChanges}
+            snapGrid={snapGrid}
+            snapToGrid={true}
             style={getBackgroundStyle(x, y, zoom, gridSize)}
             translateExtent={translateExtent}
-            snapToGrid={true}
-            snapGrid={snapGrid}
-            attributionPosition='bottom-right'
+            zoomOnDoubleClick={false}
         >
             <Controls />
         </ReactFlow>
@@ -125,7 +141,7 @@ function createEdge(edge: NoteEdge): Edge {
         target,
         sourceHandle: `${source}-R`,
         targetHandle: `${target}-L`,
-        style: {strokeWidth: edgeWidth},
+        style: edgeStyle,
     };
 }
 
@@ -188,7 +204,7 @@ function onEdgeDoubleClick(event: MouseEvent, edge: Edge) {
 
 const WrappedPianoRoll = memo((props: Props) => (
     <ReactFlowProvider>
-        <PianoRollGraph notes={props.notes} edges={props.edges} />
+        <PianoRollGraph {...props} />
     </ReactFlowProvider>
 ));
 

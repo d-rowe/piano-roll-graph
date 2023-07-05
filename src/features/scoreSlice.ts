@@ -1,4 +1,5 @@
 import {createSlice} from '@reduxjs/toolkit';
+import {loadScoreFromUrl} from '../utils/fileUtils';
 
 import type {PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../app/store';
@@ -6,6 +7,7 @@ import type {Note, Edge} from '../constants';
 
 
 type State = {
+    bpm: number,
     notes: Record<string, Note>,
     edges: Record<string, Edge>,
 };
@@ -25,10 +27,13 @@ type DeleteNoteEdge = {
     edgeId: string,
 };
 
-const initialState: State = {
+const defaultState = {
+    bpm: 80,
     notes: {},
-    edges: {}
+    edges: {},
 };
+
+const initialState: State = loadScoreFromUrl() || defaultState;
 
 const scoreSlice = createSlice({
     name: 'score',

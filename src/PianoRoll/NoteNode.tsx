@@ -1,5 +1,6 @@
 import React, {memo} from 'react';
 import {Handle, Position, NodeResizeControl} from 'reactflow';
+import {NODE_COLOR} from './colors';
 
 import type {NodeProps} from 'reactflow';
 
@@ -26,7 +27,7 @@ export default memo((props: NodeProps) => {
             />
             <div style={{
                 border: '1px solid black',
-                backgroundColor: '#D0D1FF',
+                backgroundColor: NODE_COLOR,
                 height: '100%',
                 boxSizing: 'border-box',
                 width: 'calc(100% + 16px)',
