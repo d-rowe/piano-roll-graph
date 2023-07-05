@@ -92,8 +92,8 @@ const PianoRollGraph = ({score}: Props) => {
             defaultViewport={defaultViewport}
             edges={edges}
             isValidConnection={isValidConnection}
-            maxZoom={4}
-            minZoom={0.25}
+            maxZoom={5}
+            minZoom={0.1}
             nodes={nodes}
             nodeTypes={nodeTypes}
             onConnect={onConnect}
