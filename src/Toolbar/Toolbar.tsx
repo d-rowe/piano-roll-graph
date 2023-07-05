@@ -1,8 +1,8 @@
 import {CSSProperties, memo} from 'react';
 import {play} from '../Playback/Player';
+// import {NODE_COLOR} from '../PianoRoll/colors';
 
 import type {Graph} from '../constants';
-import {NODE_COLOR} from '../PianoRoll/colors';
 
 type Props = {
     score: Graph,
@@ -11,10 +11,10 @@ type Props = {
 const containerStyle: CSSProperties = {
     position: 'absolute',
     top: 0,
-    width: '100%',
-    height: '24px',
-    backgroundColor: NODE_COLOR,
-    padding: '4px',
+    // width: '100%',
+    // height: '24px',
+    // backgroundColor: NODE_COLOR,
+    // padding: '4px',
 };
 
 function Toolbar({score}: Props) {

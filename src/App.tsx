@@ -1,11 +1,9 @@
-import {play} from './Playback/Player';
 import './App.css';
 import PianoRollGraph from './PianoRoll/PianoRollGraph';
 import {Graph} from './constants';
 import {RootState} from './app/store';
 import {selectScore} from './features/scoreSlice';
 import {connect} from 'react-redux';
-import {getScoreUrl} from './utils/fileUtils';
 import Toolbar from './Toolbar/Toolbar';
 
 type Props = {
@@ -21,11 +19,6 @@ function App({score}: Props) {
       <Toolbar score={score} />
     </div>
   );
-
-
-  function save() {
-    navigator.clipboard.writeText(getScoreUrl(score));
-  }
 }
 
 function mapStateToProps(state: RootState) {

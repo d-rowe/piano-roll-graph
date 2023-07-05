@@ -1,6 +1,6 @@
 import Synth from './Synth';
 
-const SIZE = 32;
+const SIZE = 48;
 
 export type SynthContext = {
     synth: Synth,
@@ -37,7 +37,7 @@ export default class SynthPool {
             this.availableSynths.add(id);
             synth.triggerRelease();
             // allow for release tail to taper off
-            setTimeout(() => synth.dispose(), 500);
+            setTimeout(() => synth.dispose(), 100);
         });
     }
 

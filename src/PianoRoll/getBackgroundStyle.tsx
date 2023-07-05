@@ -38,7 +38,7 @@ function getHorizontalLines() {
     for (let i = 0; i < 12; i++) {
         const y = i * 256;
         if (!NATURAL_INDEXES.has(i)) {
-            line += `<rect width="1024" height="256" y="${y}" fill="#EAEAEA" />`;
+            line += `<rect width="1024" height="256" y="${y}" fill="${GRID_ACCIDENTAL_COLOR}" />`;
         }
         line += `<line x1="0" y1="${y}" x2="1024" y2="${y}" stroke="black" stroke-width="2" />`;
     }
