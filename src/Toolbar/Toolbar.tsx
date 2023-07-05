@@ -28,7 +28,7 @@ function Toolbar({score}: Props) {
 function Button(props: {title: string, onClick?: () => void}) {
     return (
         <button
-            style={{height: '100%'}}
+            style={{height: '100%', fontSize: '24px'}}
             onClick={props.onClick}>
             <span>{props.title}</span>
         </button>
