@@ -6,7 +6,7 @@ import {
 const FREQUENCY = 'frequency';
 const DECIBELS = 'decibels';
 const ATTACK = 0.1;
-export const DEFAULT_VOLUME = -22;
+export const DEFAULT_VOLUME = -20;
 
 export default class Synth {
     private readonly synth: MonoSynth;
