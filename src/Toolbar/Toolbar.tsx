@@ -1,4 +1,5 @@
 import {CSSProperties, memo} from 'react';
+import {loadScoreFromLibrary} from '../features/scoreActions';
 import {play} from '../Playback/Player';
 // import {NODE_COLOR} from '../PianoRoll/colors';
 
@@ -21,6 +22,8 @@ function Toolbar({score}: Props) {
     return (
         <div style={containerStyle}>
             <Button title='▶️' onClick={play} />
+            <Button title='BWV 26' onClick={() => loadScoreFromLibrary('bwv-26')} />
+            <Button title='BWV 262' onClick={() => loadScoreFromLibrary('bwv-262')} />
     </div>
     );
 }
@@ -28,7 +31,6 @@ function Toolbar({score}: Props) {
 function Button(props: {title: string, onClick?: () => void}) {
     return (
         <button
-            style={{height: '100%', fontSize: '24px'}}
             onClick={props.onClick}>
             <span>{props.title}</span>
         </button>

@@ -6,9 +6,11 @@ import {
     deleteNoteAC,
     deleteNoteEdgeAC,
     updateNoteAC,
+    updateScoreAC,
 } from './scoreSlice';
 
 import type {Note, Edge} from '../constants';
+import {getScoreFromLibrary} from '../utils/fileUtils';
 
 
 type NoteWithoutId = Omit<Note, 'id'>;
@@ -43,6 +45,11 @@ export function addNoteEdge(props: EdgeWithoutId) {
 
 export function deleteNoteEdge(edgeId: string) {
     store.dispatch(deleteNoteEdgeAC({edgeId}));
+}
+
+export async function loadScoreFromLibrary(name: string) {
+    const score = await getScoreFromLibrary(name);
+    store.dispatch(updateScoreAC(score));
 }
 
 function generateId(): string {

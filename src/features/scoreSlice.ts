@@ -3,7 +3,7 @@ import {loadScoreFromUrl} from '../utils/fileUtils';
 
 import type {PayloadAction} from '@reduxjs/toolkit';
 import type {RootState} from '../app/store';
-import type {Note, Edge} from '../constants';
+import type {Note, Edge, Graph} from '../constants';
 
 
 type State = {
@@ -69,6 +69,12 @@ const scoreSlice = createSlice({
             const {edgeId} = action.payload;
             delete state.edges[edgeId];
         },
+        updateScoreAC: (state, action: PayloadAction<Graph>) => {
+            Object.entries(action.payload).forEach(([key, val]) => {
+                // @ts-ignore
+                state[key] = val;
+            });
+        }
     }
 })
 
@@ -77,7 +83,8 @@ export const {
     deleteNoteAC,
     updateNoteAC,
     addNoteEdgeAC,
-    deleteNoteEdgeAC
+    deleteNoteEdgeAC,
+    updateScoreAC,
 } = scoreSlice.actions;
 export const selectScore = (state: RootState) => state.score;
 export const scoreReducer = scoreSlice.reducer;

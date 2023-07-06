@@ -24,7 +24,7 @@ export default class Synth {
                 attackCurve: 'linear',
             },
             oscillator: {
-                type: 'triangle',
+                type: 'fatsawtooth',
             }
         }).toDestination();
 

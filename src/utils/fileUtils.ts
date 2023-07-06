@@ -5,7 +5,7 @@ import type {Graph} from '../constants';
 
 const SCORE_PARAM = 's';
 
-function compressScore(score: Graph): string {
+export function compressScore(score: Graph): string {
     return compressToBase64(JSON.stringify(score));
 }
 
@@ -20,6 +20,12 @@ export function getScoreUrl(score: Graph): string {
     const {location} = window;
     const url = `${location.origin}${location.pathname}`;
     return `${url}?${searchParams}`;
+}
+
+export async function getScoreFromLibrary(name: string) {
+    const response = await fetch(`/scores/${name}.prg`);
+    const compressedScore = await response.text();
+    return uncompressScore(compressedScore);
 }
 
 export function loadScoreFromUrl(): Graph | null {

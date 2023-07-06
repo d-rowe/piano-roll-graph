@@ -7,11 +7,13 @@ import {DEFAULT_VOLUME} from './Synth';
 
 import type {SynthContext} from './SynthPool';
 import type {Edge, Note} from '../constants';
+import {compressScore} from '../utils/fileUtils';
 
 
 let prevSynthPool: SynthPool | null = null;
 export async function play() {
     const score = store.getState().score;
+    console.log(compressScore(score));
     Transport.bpm.value = score.bpm;
     const slideTargetNotes = new Set<Note>();
     Transport.stop();
